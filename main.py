@@ -7,20 +7,20 @@
 
 import random
 import matplotlib.pyplot as plt
-import PySimpleGUI as sg
-import numpy as np
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import csv
 
 
 # Importação do arquivo csv
-def importar_csv(nome_arquivo):
+def importar_csv(file):
     # Lista para armazenar as tuplas de aulas
     global aulas
     aulas = []
-    nome_arquivo = 'dados/' + nome_arquivo
+    # nome_arquivo = 'dados/' + nome_arquivo
 
     # Abre o arquivo CSV e lê os dados
-    with open(nome_arquivo, 'r') as file:
+    with open(file, 'r') as file:
         csv_reader = csv.reader(file, delimiter=';')  # Define o separador como ponto e vírgula
 
         # Pula o cabeçalho (se houver)
@@ -55,14 +55,15 @@ def elitismo(populacao, adaptacao, num_individuos_elitismo):
 
 # Função principal do algoritmo genético
 def algoritmo_genetico():
+
     populacao = [criar_individuo() for _ in range(POPULACAO_SIZE)]
     melhor_individuo = None
     melhor_aptidao = float("-inf")
-
+    lista_aptidoes = []
     print('ag')
 
     for geracao in range(NUM_GERACOES - 1):
-        # print(geracao)
+        print(geracao)
         aptidoes = [calcular_aptidao(individuo) for individuo in populacao]
         melhor_individuo_geracao = populacao[aptidoes.index(max(aptidoes))]
         melhor_aptidao_geracao = aptidoes.index(max(aptidoes))
@@ -70,6 +71,7 @@ def algoritmo_genetico():
         if melhor_aptidao_geracao > melhor_aptidao:
             melhor_individuo = melhor_individuo_geracao
             melhor_aptidao = melhor_aptidao_geracao
+
 
         filhos = []
         selecionados = []
@@ -97,7 +99,11 @@ def algoritmo_genetico():
         filhos_mutados = [mutacao(filho, TAXA_MUTACAO) for filho in filhos]
         elite = elitismo(populacao, aptidoes, ELITISMO_SIZE)
         populacao = elite + filhos_mutados
-        # print(populacao)
+        print("melhor_aptidao_geracao" + str(melhor_aptidao_geracao))
+        print("geracao" + str(geracao))
+        print("aptidao" + str(melhor_aptidao))
+        lista_aptidoes.append(melhor_aptidao)
+        update_grafico1(lista_aptidoes)
 
     return melhor_individuo, aptidoes
 
@@ -441,32 +447,34 @@ def exibir_grafico_aptidao(aptidoes):
     plt.title("Evolução da Aptidão")
     plt.show()
 
+def update_grafico1(aptidoes):
+    print("teste")
+    print(aptidoes)
+    geracoes = list(range(1, len(aptidoes) + 1))
+    fig1.clf()
+    ax1 = fig1.add_subplot(1, 1, 1)
+    ax1.plot(geracoes, aptidoes)
+    ax1.set_ylabel('Aptidao', color='red')
+    ax1.set_xlabel('Geração', color='red')
+    ax1.axis('equal')
 
-nome_arquivo = 'aulas.csv'
-AULAS = importar_csv(nome_arquivo)
+    figure_canvas_agg1.draw()
+    figure_canvas_agg1.flush_events()
+    window.refresh()
 
-PERIODOS = set()
-for linha in AULAS:
-    valor = linha[1]
-    PERIODOS.add(valor)
-NUM_PERIODO = len(PERIODOS)
 
-POPULACAO_SIZE = 50
-NUM_GERACOES = 20
-TAXA_CRUZAMENTO = 0.8
-TAXA_MUTACAO = 0.5
-ELITISMO_SIZE = 1
+aptidao_maxima = []
+AULAS = '';
+POPULACAO_SIZE = ''
+NUM_GERACOES = ''
+TAXA_CRUZAMENTO = ''
+TAXA_MUTACAO = ''
+ELITISMO_SIZE = ''
 SELECAO_METODO = "roleta"  # "roleta" ou "torneio"
-TORNEIO_SIZE = 5
+TORNEIO_SIZE = ''
 DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
 HORARIOS = ['19:00', '19:50', '20:50', '21:40']
 
-# melhor_individuo, aptidoes = algoritmo_genetico()
-# # melhor_individuo = criar_individuo()
-# print(melhor_individuo)
-# print(max(aptidoes))
-# exibir_tabela_melhor_individuo(melhor_individuo)
-# exibir_grafico_aptidao(aptidoes)
 
 import PySimpleGUI as sg
 
@@ -479,58 +487,58 @@ layout = [
             [
                 [
                     sg.Text("Arquivo CSV:"),
-                    sg.Input(size=(30, 1), key="-FILE-"),
+                    sg.Input(size=(30, 1), key="-FILE-", default_text="C:/Users/guilherme.rocha/PycharmProjects/genetico/dados/aulas.csv"),
                     sg.FileBrowse(),
                 ],
                 [
                     sg.Text("Dias da Semana:"),
-                    sg.Checkbox("Domingo", key="-DOMINGO-"),
-                    sg.Checkbox("Segunda", key="-SEGUNDA-"),
-                    sg.Checkbox("Terça", key="-TERCA-"),
-                    sg.Checkbox("Quarta", key="-QUARTA-"),
-                    sg.Checkbox("Quinta", key="-QUINTA-"),
-                    sg.Checkbox("Sexta", key="-SEXTA-"),
-                    sg.Checkbox("Sábado", key="-SABADO-"),
+                    sg.Checkbox("Domingo", key="-DOMINGO-", disabled=True),
+                    sg.Checkbox("Segunda", key="-SEGUNDA-", disabled=True, default=True),
+                    sg.Checkbox("Terça", key="-TERCA-", disabled=True, default=True),
+                    sg.Checkbox("Quarta", key="-QUARTA-", disabled=True, default=True),
+                    sg.Checkbox("Quinta", key="-QUINTA-", disabled=True, default=True),
+                    sg.Checkbox("Sexta", key="-SEXTA-", disabled=True, default=True),
+                    sg.Checkbox("Sábado", key="-SABADO-", disabled=True),
                 ],
 
                 [
-                    sg.Text("Quantidade de Aulas/Dia:"),
-                    sg.Input(size=(5, 1), key="-NUM_CLASSES-"),
+                    sg.Text("Quantidade de Aulas/Dia:", size=(20, 1)),
+                    sg.Input(size=(5, 1), key="-NUM_CLASSES-", default_text='4', disabled=True),
+                    sg.Text(size=(2, 1)),
+
+                    sg.Text("Duração de cada aula:", size=(20, 1)),
+                    sg.Input(size=(5, 1), key="-DURACAO_AULA-", default_text='50', disabled=True),
+                    sg.Text(size=(2, 1)),
+
+                    sg.Text("Horário de inicio:", size=(20, 1)),
+                    sg.Input(size=(5, 1), key="-INICIO_AULA-", default_text='19:00', disabled=True),
                 ],
                 [
-                    sg.Text("Duração de cada aula:"),
-                    sg.Input(size=(5, 1), key="-DURACAO_AULA-"),
+                    sg.Text("Tamanho da População:", size=(20, 1)),
+                    sg.Input(size=(5, 1), key="-POPULACAO_SIZE-", default_text='100'),
+                    sg.Text(size=(2, 1)),
+
+                    sg.Text("Número de Gerações:", size=(20, 1)),
+                    sg.Input(size=(5, 1), key="-NUM_GERACOES-", default_text='200'),
                 ],
                 [
-                    sg.Text("Horário de inicio:"),
-                    sg.Input(size=(5, 1), key="-INICIO_AULA-"),
+                    sg.Text("Taxa de Cruzamento:", size=(20, 1)),
+                    sg.Input(size=(5, 1), key="-TAXA_CRUZAMENTO-", default_text='80'),
+                    sg.Text(size=(2, 1)),
+
+                    sg.Text("Taxa de Mutação:", size=(20, 1)),
+                    sg.Input(size=(5, 1), key="-TAXA_MUTACAO-", default_text='50'), sg.Text("%"),
                 ],
                 [
-                    sg.Text("Tamanho da População:"),
-                    sg.Input(size=(10, 1), key="-POPULACAO_SIZE-"),
-                ],
-                [
-                    sg.Text("Número de Gerações:"),
-                    sg.Input(size=(10, 1), key="-NUM_GERACOES-"),
-                ],
-                [
-                    sg.Text("Taxa de Cruzamento:"),
-                    sg.Input(size=(10, 1), key="-TAXA_CRUZAMENTO-"),
-                ],
-                [
-                    sg.Text("Taxa de Mutação:"),
-                    sg.Input(size=(10, 1), key="-TAXA_MUTACAO-"),
-                ],
-                [
-                    sg.Text("Tamanho do Elitismo:"),
-                    sg.Input(size=(10, 1), key="-ELITISMO_SIZE-"),
-                ],
-                [
-                    sg.Text("Seleção:"),
-                    sg.Radio("Roleta", "SELECAO_METODO", default=True, key="-ROLETA-"),
-                    sg.Radio("Torneio", "SELECAO_METODO", key="-TORNEIO-"),
+                    sg.Text("Tamanho do Elitismo:", size=(20, 1)),
+                    sg.Input(size=(5, 1), key="-ELITISMO_SIZE-", default_text='1'),
+                    sg.Text(size=(2, 1)),
+
+                    sg.Text("Seleção:", size=(20, 1)),
+                    sg.Radio("Roleta", "SELECAO_METODO", enable_events=True, default=True, key="-ROLETA-"),
+                    sg.Radio("Torneio", "SELECAO_METODO", enable_events=True, key="-TORNEIO-"),
                     sg.Input(
-                        size=(5, 1), key="-TORNEIO_SIZE-", disabled=True
+                        size=(5, 1), key="-TORNEIO_SIZE-", default_text='30', disabled=True
                     ),  # Campo desabilitado inicialmente
                 ],
                 [sg.Button("Reiniciar Dados"), sg.Button("Gerar Horário")],
@@ -541,11 +549,11 @@ layout = [
         ),
         sg.Frame(
             "Aptidão",
-            [[sg.Graph(canvas_size=(300, 200), graph_bottom_left=(0, 0), graph_top_right=(300, 200),
-                       background_color='white', key='-GRAPH-')]],
+            [[sg.Canvas(size=(500, 400), key='-CANVAS1-')]],
             element_justification="center",
             expand_x=True,
             expand_y=True,
+
         ),
     ],
     [
@@ -573,48 +581,49 @@ layout = [
             "Desenvolvedores",
             [
                 [
-                    sg.Text("Desenvolvido por João, Luciano, Guilherme Barbosa e Guilherme Mutão")
-                ],
-                [sg.Text("Professor: Zequinha")],
-                [sg.Button("Fechar")],
+                    sg.Text("Desenvolvido por João, Luciano, Guilherme Barbosa e Guilherme Mutão"),
+                    sg.Text(size=(10, 1)),
+                    sg.Text("Professor: Zequinha"),
+                    sg.Text(size=(50, 1)),
+                    sg.Button("Fechar")],
             ],
             expand_x=True,
             expand_y=True,
         )
     ],
 ]
-
 # Criar a janela
-window = sg.Window("Sistema de Grade Automática", layout, size=(1200, 800))
+window = sg.Window("Sistema de Grade Automática", layout, size=(1200, 800), finalize=True)
 sg.theme("LightGrey1")
+
+fig1 = plt.figure(figsize=(4.5, 5))
+figure_canvas_agg1 = FigureCanvasTkAgg(fig1, master=window['-CANVAS1-'].TKCanvas)
+figure_canvas_agg1.draw()
+figure_canvas_agg1.get_tk_widget().pack(side='top', fill='both', expand=1)
 
 # Loop de eventos
 while True:
     event, values = window.read()
 
-    if event == '-ESCOLHA_ROLETA-':
-        window['-TORNEIO-'].update(disabled=True, value='')
-        window.Element('-TXT_TORNEIO-').Update(text_color='gray')
-        window['-EXIBIR_ROLETA-'].update(disabled=False)
-        window.Element('-EXIBIR_ROLETA-').Update(text_color='white')
-        continue
-
-    if event == '-ESCOLHA_TORNEIO-':
-        window['-TORNEIO-'].update(disabled=False)
-        window['-EXIBIR_ROLETA-'].update(disabled=True, value='')
-        window.Element('-EXIBIR_ROLETA-').Update(text_color='gray')
-        window.Element('-TXT_TORNEIO-').Update(text_color='white')
-        continue
+    if event == '-TORNEIO-':
+        window['-TORNEIO_SIZE-'].update(disabled=False, value='')
+        TORNEIO_SIZE = values['-TORNEIO_SIZE-']
+    elif event == '-ROLETA-':
+        window['-TORNEIO_SIZE-'].update(disabled=True, value='')
+        TORNEIO_SIZE = 0
 
     if event == sg.Button("Gerar Horário") or event == "Gerar Horário":
-        NUM_GERACOES = values['-NUM_GERACOES-']
-        POPULACAO_SIZE = values['-POPULACAO_SIZE-']
-        TAXA_CRUZAMENTO = values['-TAXA_CRUZAMENTO-']
-        TAXA_MUTACAO = values['-TAXA_MUTACAO-']
-        ELITISMO_SIZE = values['-ELITISMO_SIZE-']
-        ROLETA = values['-ROLETA-']
-        TORNEIO = values['-TORNEIO-']
-        TORNEIO_SIZE = values['-TORNEIO_SIZE-']
+        NUM_GERACOES = int(values['-NUM_GERACOES-'])
+        POPULACAO_SIZE = int(values['-POPULACAO_SIZE-'])
+        TAXA_CRUZAMENTO = float(values['-TAXA_CRUZAMENTO-'])
+        TAXA_MUTACAO = float(values['-TAXA_MUTACAO-'])
+        ELITISMO_SIZE = int(values['-ELITISMO_SIZE-'])
+        ROLETA = bool(values['-ROLETA-'])
+        TORNEIO = bool(values['-TORNEIO-'])
+
+        if TORNEIO:
+            TORNEIO_SIZE = int(values['-TORNEIO_SIZE-'])
+
         DIAS = []
         if values['-DOMINGO-']:
             DIAS.append('Domingo')
@@ -631,6 +640,25 @@ while True:
         if values['-SABADO-']:
             DIAS.append('Sábado')
         FILE = values['-FILE-']
+
+        # nome_arquivo = 'aulas.csv'
+        AULAS = importar_csv(FILE)
+
+        PERIODOS = set()
+        for linha in AULAS:
+            valor = linha[1]
+            PERIODOS.add(valor)
+        NUM_PERIODO = len(PERIODOS)
+
+        # print(AULAS)
+
+        melhor_individuo, aptidoes = algoritmo_genetico()
+        # # melhor_individuo = criar_individuo()
+        exibir_tabela_melhor_individuo(melhor_individuo)
+        exibir_grafico_aptidao(aptidoes)
+        update_grafico1(aptidoes)
+
+
 
     if event == sg.WINDOW_CLOSED or event == "Fechar":
         break
