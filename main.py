@@ -1,4 +1,4 @@
-# Trabalho 8 - ADS - 2023 1o semestre
+# Trabalho Final - ADS - 2023 1o semestre
 # Alunos: Guilherme Barbosa, Guilherme Mutão, João Floriano e Luciano Angelo
 
 # Instalacao imports
@@ -60,10 +60,10 @@ def algoritmo_genetico():
     melhor_individuo = None
     melhor_aptidao = float("-inf")
     lista_aptidoes = []
-    print('ag')
+    #print('ag')
 
     for geracao in range(NUM_GERACOES - 1):
-        print(geracao)
+        #print(geracao)
         aptidoes = [calcular_aptidao(individuo) for individuo in populacao]
         melhor_individuo_geracao = populacao[aptidoes.index(max(aptidoes))]
         melhor_aptidao_geracao = aptidoes.index(max(aptidoes))
@@ -99,9 +99,9 @@ def algoritmo_genetico():
         filhos_mutados = [mutacao(filho, TAXA_MUTACAO) for filho in filhos]
         elite = elitismo(populacao, aptidoes, ELITISMO_SIZE)
         populacao = elite + filhos_mutados
-        print("melhor_aptidao_geracao" + str(melhor_aptidao_geracao))
-        print("geracao" + str(geracao))
-        print("aptidao" + str(melhor_aptidao))
+        #print("melhor_aptidao_geracao" + str(melhor_aptidao_geracao))
+        #print("geracao" + str(geracao))
+        #print("aptidao" + str(melhor_aptidao))
         lista_aptidoes.append(melhor_aptidao)
         update_grafico1(lista_aptidoes)
 
@@ -174,12 +174,6 @@ def criar_individuo():
 
 
 # Função de seleção por roleta
-'''def selecao_roleta(populacao, aptidoes):
-    total_aptidoes = sum(aptidoes)
-    probs = [aptidao / total_aptidoes for aptidao in aptidoes]
-    return random.choices(populacao, weights=probs)[0]'''
-
-
 def selecao_roleta(populacao, aptidoes):
     total_aptidoes = sum(aptidoes)
     probs = [aptidao / total_aptidoes for aptidao in aptidoes]
@@ -413,10 +407,7 @@ def retorna_aula_professor(individuo):
 
 
 def exibir_tabela_melhor_individuo(melhor_individuo):
-    tabela = [
-        ["Período", "Horários", "Segunda", "Terça", "Quarta", "Quinta", "Sexta"]
-    ]
-
+    tabela = []
     for periodo in range(NUM_PERIODO):
         for horario in range(len(HORARIOS)):
             linha = [
@@ -429,13 +420,7 @@ def exibir_tabela_melhor_individuo(melhor_individuo):
                 retorna_aula_professor(melhor_individuo[periodo][4][horario])
             ]
             tabela.append(linha)
-    sg.theme("LightGrey1")
-    data = tabela[1:]
-    layout = [[sg.Table(values=data, headings=tabela[0], alternating_row_color='#e5e5e5', auto_size_columns=True,
-                        justification='center', size=(1100, 430))]]
-    window = sg.Window("Melhor Indivíduo - Grade Horária", layout, size=(1100, 430))
-    window.read()
-    window.close()
+    return tabela
 
 
 # Função para exibir o gráfico de aptidão
@@ -448,15 +433,17 @@ def exibir_grafico_aptidao(aptidoes):
     plt.show()
 
 def update_grafico1(aptidoes):
-    print("teste")
-    print(aptidoes)
+    #print("teste")
+    #print(aptidoes)
     geracoes = list(range(1, len(aptidoes) + 1))
     fig1.clf()
     ax1 = fig1.add_subplot(1, 1, 1)
     ax1.plot(geracoes, aptidoes)
-    ax1.set_ylabel('Aptidao', color='red')
-    ax1.set_xlabel('Geração', color='red')
+    ax1.set_ylabel('Aptidao', color='red', fontsize=9)
+    ax1.set_xlabel('Geração', color='red', fontsize=9)
     ax1.axis('equal')
+    ax1.tick_params(axis='x', labelsize=8)
+    ax1.tick_params(axis='y', labelsize=8)
 
     figure_canvas_agg1.draw()
     figure_canvas_agg1.flush_events()
@@ -487,8 +474,11 @@ layout = [
             [
                 [
                     sg.Text("Arquivo CSV:"),
-                    sg.Input(size=(30, 1), key="-FILE-", default_text="C:/Users/guilherme.rocha/PycharmProjects/genetico/dados/aulas.csv"),
+                    sg.Input(size=(30, 1), key="-FILE-", default_text="C:/Users/Gui/PycharmProjects/pythonProject/dados/aulas.csv"),
                     sg.FileBrowse(),
+                ],
+                [
+                    sg.Text("")
                 ],
                 [
                     sg.Text("Dias da Semana:"),
@@ -514,12 +504,15 @@ layout = [
                     sg.Input(size=(5, 1), key="-INICIO_AULA-", default_text='19:00', disabled=True),
                 ],
                 [
+                    sg.Text("")
+                ],
+                [
                     sg.Text("Tamanho da População:", size=(20, 1)),
-                    sg.Input(size=(5, 1), key="-POPULACAO_SIZE-", default_text='100'),
+                    sg.Input(size=(5, 1), key="-POPULACAO_SIZE-", default_text='2'),
                     sg.Text(size=(2, 1)),
 
                     sg.Text("Número de Gerações:", size=(20, 1)),
-                    sg.Input(size=(5, 1), key="-NUM_GERACOES-", default_text='200'),
+                    sg.Input(size=(5, 1), key="-NUM_GERACOES-", default_text='2'),
                 ],
                 [
                     sg.Text("Taxa de Cruzamento:", size=(20, 1)),
@@ -537,11 +530,18 @@ layout = [
                     sg.Text("Seleção:", size=(20, 1)),
                     sg.Radio("Roleta", "SELECAO_METODO", enable_events=True, default=True, key="-ROLETA-"),
                     sg.Radio("Torneio", "SELECAO_METODO", enable_events=True, key="-TORNEIO-"),
-                    sg.Input(
-                        size=(5, 1), key="-TORNEIO_SIZE-", default_text='30', disabled=True
+                    sg.Input(size=(5, 1), key="-TORNEIO_SIZE-", default_text='30', disabled=True
                     ),  # Campo desabilitado inicialmente
                 ],
-                [sg.Button("Reiniciar Dados"), sg.Button("Gerar Horário")],
+                [
+                    sg.Text("")
+                ],
+                [
+                    sg.Text("", size=(5, 1)),
+                    sg.Button("Gerar Horário", size=(20,1), button_color=('white', 'green')),
+                    sg.Text("", size=(35, 1)),
+                    sg.Button("Reiniciar Dados", size=(20,1), button_color=('white', 'gray'))
+                ],
             ],
             element_justification="left",
             expand_x=True,
@@ -549,7 +549,7 @@ layout = [
         ),
         sg.Frame(
             "Aptidão",
-            [[sg.Canvas(size=(500, 400), key='-CANVAS1-')]],
+            [[sg.Canvas(size=(300, 400), key='-CANVAS1-')]],
             element_justification="center",
             expand_x=True,
             expand_y=True,
@@ -567,7 +567,8 @@ layout = [
                         justification="center",
                         auto_size_columns=False,
                         num_rows=25,
-                        col_widths=[20] * 7,
+                        col_widths=[5, 10, 25, 25, 25, 25, 25],
+                        # col_widths=[20] * 7,
                         key="-SCHEDULE-",
                     )
                 ]
@@ -585,7 +586,7 @@ layout = [
                     sg.Text(size=(10, 1)),
                     sg.Text("Professor: Zequinha"),
                     sg.Text(size=(50, 1)),
-                    sg.Button("Fechar")],
+                    sg.Button("Fechar", size=(20,1), button_color=('white', 'red'))],
             ],
             expand_x=True,
             expand_y=True,
@@ -593,13 +594,14 @@ layout = [
     ],
 ]
 # Criar a janela
-window = sg.Window("Sistema de Grade Automática", layout, size=(1200, 800), finalize=True)
+window = sg.Window("Sistema de Grade Automática", layout, size=(1300, 950), finalize=True)
 sg.theme("LightGrey1")
 
-fig1 = plt.figure(figsize=(4.5, 5))
+fig1 = plt.figure(figsize=(4, 3.5))
 figure_canvas_agg1 = FigureCanvasTkAgg(fig1, master=window['-CANVAS1-'].TKCanvas)
 figure_canvas_agg1.draw()
 figure_canvas_agg1.get_tk_widget().pack(side='top', fill='both', expand=1)
+
 
 # Loop de eventos
 while True:
@@ -608,9 +610,11 @@ while True:
     if event == '-TORNEIO-':
         window['-TORNEIO_SIZE-'].update(disabled=False, value='')
         TORNEIO_SIZE = values['-TORNEIO_SIZE-']
+        continue
     elif event == '-ROLETA-':
         window['-TORNEIO_SIZE-'].update(disabled=True, value='')
         TORNEIO_SIZE = 0
+        continue
 
     if event == sg.Button("Gerar Horário") or event == "Gerar Horário":
         NUM_GERACOES = int(values['-NUM_GERACOES-'])
@@ -654,13 +658,17 @@ while True:
 
         melhor_individuo, aptidoes = algoritmo_genetico()
         # # melhor_individuo = criar_individuo()
-        exibir_tabela_melhor_individuo(melhor_individuo)
-        exibir_grafico_aptidao(aptidoes)
+        # exibir_tabela_melhor_individuo(melhor_individuo)
+        # exibir_grafico_aptidao(aptidoes)
         update_grafico1(aptidoes)
 
+        tabela = exibir_tabela_melhor_individuo(melhor_individuo)
+        window["-SCHEDULE-"].update(values=tabela)
+        continue
 
 
     if event == sg.WINDOW_CLOSED or event == "Fechar":
+        window.close()
         break
 
 # Fechar a janela
