@@ -439,7 +439,11 @@ def update_grafico1(aptidoes):
     fig1.clf()
     ax1 = fig1.add_subplot(1, 1, 1)
     ax1.plot(geracoes, aptidoes)
-    ax1.set_xlim(1, len(aptidoes))
+
+    # Check if there is more than one data point to set xlims
+    if len(aptidoes) > 1:
+        ax1.set_xlim(1, len(aptidoes))
+
     ax1.set_ylabel('Aptidao', color='red', fontsize=9)
     ax1.set_xlabel('Geração', color='red', fontsize=9)
     ax1.tick_params(axis='x', labelsize=8)
@@ -507,11 +511,11 @@ layout = [
                 ],
                 [
                     sg.Text("Tamanho da População:", size=(20, 1)),
-                    sg.Input(size=(5, 1), key="-POPULACAO_SIZE-", default_text='10'),
+                    sg.Input(size=(5, 1), key="-POPULACAO_SIZE-", default_text='200'),
                     sg.Text(size=(2, 1)),
 
                     sg.Text("Número de Gerações:", size=(20, 1)),
-                    sg.Input(size=(5, 1), key="-NUM_GERACOES-", default_text='10'),
+                    sg.Input(size=(5, 1), key="-NUM_GERACOES-", default_text='50'),
                 ],
                 [
                     sg.Text("Taxa de Cruzamento:", size=(20, 1)),
