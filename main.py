@@ -473,7 +473,7 @@ layout = [
             [
                 [
                     sg.Text("Arquivo CSV:"),
-                    sg.Input(size=(30, 1), key="-FILE-", default_text="C:/Users/guilherme.rocha/PycharmProjects/genetico/dados/aulas.csv"),
+                    sg.Input(size=(30, 1), key="-FILE-", default_text="C:/Users/Gui/PycharmProjects/pythonProject/dados/aulas.csv"),
                     sg.FileBrowse(),
                 ],
                 [
